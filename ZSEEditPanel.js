@@ -5,17 +5,15 @@
     var editPanel = function(objRef, options){                
         var objRef = objRef;
         
-        var loadUrl = function(url, callback) {
+        var loadUrl = function(url) {
             $.get(url, {}, function(data) {
                 objRef.html(data);
-                if (callback !== undefined) {
-                    callback(data);
-                }
+                options.onAfterLoad.call(this, data);
             });
         };
         
-        this.url = function(url, callback) {           
-            loadUrl(url, callback);         
+        this.url = function(url) {           
+            loadUrl(url);         
         };
         
         this.show = function(){
@@ -45,6 +43,7 @@
                 onAfterShow: function(){},
                 onBeforeHide: function(){},
                 onAfterHide: function(){},
+                onAfterLoad: function(){},
                 url: undefined
             }, $.fn.editPanel.default, options);
             
