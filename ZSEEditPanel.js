@@ -35,7 +35,7 @@
     };
     
     
-    $.fn.editPanel = function(options) {
+    $.fn.ZSEEditPanel = function(options) {
         
         // Initialization code executed only once
         var settings = $.extend({
@@ -45,7 +45,7 @@
                 onAfterHide: function(){},
                 onAfterLoad: function(){},
                 url: undefined
-            }, $.fn.editPanel.default, options);
+            }, $.fn.ZSEEditPanel.default, options);
             
                 
         this.hide();                
@@ -60,7 +60,7 @@
         
         // After the first execution this is the function which is 
         // executed
-        $.fn.editPanel = function(options) {
+        $.fn.ZSEEditPanel = function(options) {
             
             settings = $.extend(settings, options);
             
@@ -100,13 +100,13 @@
             return instance;
         };
         
-        $.fn.editPanel.defaults = settings;
+        $.fn.ZSEEditPanel.defaults = settings;
         
         return instance;
                
     };
     
-     $.fn.editPanel.default = {
+     $.fn.ZSEEditPanel.default = {
             borders: "top|right|left|bottom",
             borderColor: "#DEDEDE",
             backgroundColor: "#FCFCFC",
