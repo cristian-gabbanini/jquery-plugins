@@ -30,6 +30,9 @@
             $(this.element).remove();
         };
         
+        this.getId = function(){
+            return settings.id;
+        };
     };
                                       
     var instance = undefined;
