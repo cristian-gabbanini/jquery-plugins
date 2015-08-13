@@ -37,7 +37,7 @@
             
             settings = $.extend({
                id: "zse-switch"              
-            }, $.fn.ZSEFlashMessage.defaults, options);
+            }, $.fn.ZSESwitch.defaults, options);
             
             instance = new ZSESwitch();
             
