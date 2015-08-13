@@ -52,16 +52,16 @@
             var inputField = this;
             
             $(document).on("click", "#" + settings.id, function(e){                
-                if (!$(e.target).hasClass("btn-primary")) {                    
-                    $(e.target).addClass("btn-primary");
+                if (!$(e.target).hasClass(settings.onClass)) {                    
+                    $(e.target).addClass(settings.onClass);
                     
                     if ($(e.target).attr("off") !== undefined) {
-                         $(e.target).next("button").removeClass("btn-primary");
+                         $(e.target).next("button").removeClass(settings.onClass);
                          
                          // change input field value
                          inputField.val(settings.offValue);
                     } else {
-                        $(e.target).prev("button").removeClass("btn-primary");
+                        $(e.target).prev("button").removeClass(settings.onClass);
                         
                         // change input field value
                         inputField.val(settings.onValue);
@@ -87,7 +87,8 @@
             offLabel: 'Off',
             onLabel: 'On',
             offValue: 0,
-            onValue: 1
+            onValue: 1,
+            onClass: "btn-primary"
         };
     }());
     
