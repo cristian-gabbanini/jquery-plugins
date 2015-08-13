@@ -16,9 +16,9 @@
             obj.attr("id", settings.id);
             
             if (parseInt(value) === settings.offValue){
-                obj.children(":first").addClass("btn-primary");               
+                obj.children(":first").addClass(settings.onClass);               
             } else if (parseInt(value) === settings.onValue) {
-                obj.children(":last").addClass("btn-primary");                  
+                obj.children(":last").addClass(settings.onClass);                  
             } else {                 
                 throw "Input field value provide does not match settings offValue or onValue";
             }
