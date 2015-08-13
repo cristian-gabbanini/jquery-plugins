@@ -146,7 +146,7 @@
                    $(this).empty().html(jsonData.data);
                 },
                 onAfterPopulate: function(){},
-                loadUrl: 'info1.php',
+                loadUrl: 'info1.php'
             }, options);
                                  
         

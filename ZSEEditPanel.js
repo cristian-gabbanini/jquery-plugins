@@ -2,18 +2,30 @@
        
     var instance = undefined;
     
+    var cachedData = undefined;
+    
     var editPanel = function(objRef, options){                
         var objRef = objRef;
         
         var loadUrl = function(url) {
             $.get(url, {}, function(data) {
                 objRef.html(data);
+                cachedData = data;
                 options.onAfterLoad.call(this, data);
             });
         };
         
         this.url = function(url) {           
             loadUrl(url);         
+        };
+       
+        this.reload = function() {
+            if (options.useCache === true) {
+                objRef.html(cachedData);
+                options.onAfterLoad.call(this, cachedData);
+            } else {
+                loadUrl(options.url);
+            }
         };
         
         this.show = function(){
