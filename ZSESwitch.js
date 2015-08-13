@@ -78,9 +78,7 @@
                 }
             });
             
-        } else {
-            settings = $.extend($.fn.ZSESwitch.defaults, options);
-        } 
+        }
                        
         return instance;                
         
