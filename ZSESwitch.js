@@ -72,7 +72,7 @@
             });
             
         } else {
-            settings = $.extend($.fn.ZSEFlashMessage.defaults, options);
+            settings = $.extend($.fn.ZSESwitch.defaults, options);
         } 
                        
         return instance;                
@@ -81,7 +81,7 @@
     
     // Impostiamo alcuni valori di default
     // disponibili "pubblicamente"
-    $.fn.ZSEFlashMessage.defaults = (function() {
+    $.fn.ZSESwitch.defaults = (function() {
         return {
             template: '<div class="btn-group"><button type="button" class="btn" off>{OFFLABEL}</button><button type="button" class="btn" on>{ONLABEL}</button></div>',
             offLabel: 'Off',
