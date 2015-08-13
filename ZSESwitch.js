@@ -43,7 +43,7 @@
         if (instance === undefined) {
             
             settings = $.extend({
-               id: "zse-switch"              
+               id: "zse_switch"              
             }, $.fn.ZSESwitch.defaults, options);
             
             instance = new ZSESwitch();
