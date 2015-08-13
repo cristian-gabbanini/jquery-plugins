@@ -1,5 +1,6 @@
 (function ($){
     
+    var handler = undefined;
     var settings;
     
     var ZSESwitch = function() {                          
@@ -28,6 +29,8 @@
         
         this.remove = function() {
             $(this.element).remove();
+            $(document).off("click", "#" + settings.id, false);
+            instance = undefined;
         };
         
         this.getId = function(){
