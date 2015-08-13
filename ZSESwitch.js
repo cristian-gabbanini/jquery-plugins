@@ -2,6 +2,7 @@
     
     var handler = undefined;
     var settings;
+    var instance = undefined;
     
     var ZSESwitch = function() {                          
         
@@ -27,9 +28,13 @@
             return obj;
         };
         
-        this.remove = function() {
+        this.remove = function() {               
             $(this.element).remove();
+            
+            // unregisters the event handler
             $(document).off("click", "#" + settings.id, false);
+            
+            // The next time a new instance will be created
             instance = undefined;
         };
         
@@ -38,13 +43,13 @@
         };
     };
                                       
-    var instance = undefined;
+    
                
     $.fn.ZSESwitch = function(options) {                                       
         
         // Initialization code executed only once
         if (instance === undefined) {
-            
+           
             settings = $.extend({
                id: "zse_switch"              
             }, $.fn.ZSESwitch.defaults, options);
