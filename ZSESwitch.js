@@ -24,7 +24,11 @@
             }
             
             return obj;
-        };               
+        };
+        
+        this.remove = function() {
+            $(this.element).remove();
+        };
         
     };
                                       
