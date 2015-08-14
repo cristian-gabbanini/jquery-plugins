@@ -5,26 +5,29 @@
     var cachedData = undefined;
     
     var editPanel = function(objRef, options){                
+        
         var objRef = objRef;
         
-        var loadUrl = function(url) {
-            $.get(url, {}, function(data) {
+        var self = this;
+        
+        var loadUrl = function(url, params) {
+            $.get(url, params, function(data) {
                 objRef.html(data);
                 cachedData = data;
-                options.onAfterLoad.call(this, data);
+                options.onAfterLoad.call(self, data);
             });
         };
         
-        this.url = function(url) {           
-            loadUrl(url);         
+        this.url = function(url, params) {           
+            loadUrl(url, params);         
         };
        
         this.reload = function() {
             if (options.useCache === true) {
                 objRef.html(cachedData);
-                options.onAfterLoad.call(this, cachedData);
+                options.onAfterLoad.call(self, cachedData);
             } else {
-                loadUrl(options.url);
+                loadUrl(options.url);                
             }
         };
         
