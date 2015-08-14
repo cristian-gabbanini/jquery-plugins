@@ -31,6 +31,7 @@
             var obj = $(settings.template);
             obj.attr("id", settings.id);
             obj.hide();
+            obj.attr("style", obj.attr("style") + "margin-top:45px;");
             obj.addClass(settings.containerCssClass);            
             obj.find("h4")
                     .addClass(settings.messageCssClass)
@@ -83,10 +84,7 @@
         
             instance.element = this.next();
             
-        } else {
-            settings = $.extend($.fn.ZSEFlashMessage.defaults, options);
-        } 
-        
+        }
                
         return instance;                
         
