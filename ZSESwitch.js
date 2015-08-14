@@ -1,5 +1,5 @@
 (function ($){
-    
+    var inputField = undefined;
     var handler = undefined;
     var settings;
     var instance = undefined;
@@ -34,8 +34,9 @@
             // unregisters the event handler
             $(document).off("click", "#" + settings.id, false);
             
+            inputField = undefined;
             // The next time a new instance will be created
-            instance = undefined;
+            instance = undefined;            
         };
         
         this.getId = function(){
@@ -49,7 +50,7 @@
         
         // Initialization code executed only once
         if (instance === undefined) {
-           
+            
             settings = $.extend({
                id: "zse_switch"              
             }, $.fn.ZSESwitch.defaults, options);
@@ -64,9 +65,11 @@
             instance.element = this.next();
             
             // We attach our plugin to the following hidden input field
-            var inputField = this;
+            inputField = this;
             
-            $(document).on("click", "#" + settings.id, function(e){                
+            
+            $(document).on("click", "#" + settings.id, function(e){
+                 
                 if (!$(e.target).hasClass(settings.onClass)) {                    
                     $(e.target).addClass(settings.onClass);
                     
@@ -75,11 +78,13 @@
                          
                          // change input field value
                          inputField.val(settings.offValue);
+                         
                     } else {
                         $(e.target).prev("button").removeClass(settings.onClass);
                         
                         // change input field value
                         inputField.val(settings.onValue);
+                        
                     }
                         
                      
