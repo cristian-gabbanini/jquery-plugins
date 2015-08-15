@@ -175,6 +175,7 @@
         var loadUrl = function(url, params) {
             if (options.useCache === true && !$.isEmptyObject(cachedData)) {
                 objRef.html(cachedData[url]);
+                console.log("panel on after load cached");
                 options.onAfterLoad.call(self, cachedData[url]);
             } else {
                 
@@ -183,6 +184,7 @@
                     if (options.useCache === true) {
                         cachedData[url] = data;
                     }
+                    console.log("panel on after load");
                     options.onAfterLoad.call(self, data);                   
                 });  
             }
@@ -409,7 +411,7 @@
 
 
 (function ($){
-    var inputField = undefined;
+     
     var handler = undefined;
     var settings;
     var instance = undefined;
@@ -420,15 +422,14 @@
         
         this.element = undefined;
                               
-        this.createHtml = function(value){
-           
+        this.createHtml = function(value){           
             var template = settings.template.replace("{OFFLABEL}", settings.offLabel).replace("{ONLABEL}", settings.onLabel);
            
             var obj = $(template);
             obj.attr("id", settings.id);
             
             if (parseInt(value) === settings.offValue){
-                obj.children(":first").addClass(settings.onClass);               
+                obj.children(":first").addClass(settings.offClass);               
             } else if (parseInt(value) === settings.onValue) {
                 obj.children(":last").addClass(settings.onClass);                  
             } else {                 
@@ -438,13 +439,14 @@
             return obj;
         };
         
-        this.remove = function() {               
+        this.remove = function() { 
+            console.log("remove switch");
             $(this.element).remove();
             
             // unregisters the event handler
             $(document).off("click", "#" + settings.id, false);
             
-            inputField = undefined;
+            inputElement = undefined;
             // The next time a new instance will be created
             instance = undefined;            
         };
@@ -457,51 +459,70 @@
     
                
     $.fn.ZSESwitch = function(options) {                                       
-        
+         
         // Initialization code executed only once
-        if (inputField === undefined || instance === undefined) {
-            
-            settings = $.extend($.fn.ZSESwitch.defaults, options);
+        if (instance === undefined ||  instance.inputElement === undefined) {
+            console.log("instantiating ZSESwitch");
+            settings = $.extend($.fn.ZSESwitch.defaults, options);                                                                      
             
             instance = new ZSESwitch();
             
-            // Rendiamo hidden il campo di input
-            this.attr("type", "hidden");
-            
-            $(instance.createHtml(this.val())).insertAfter(this);                        
-            
-            instance.element = this.next();
-            
             // We attach our plugin to the following hidden input field
-            inputField = this;
+           // instance.inputElement = this;
            
+            instance["inputElement"] = $(settings.elementSelector);
             
-            $(document).on("click", "#" + settings.id, function(e){
-                 
-                if (!$(e.target).hasClass(settings.onClass)) {                    
-                    $(e.target).addClass(settings.onClass);
+            instance["element"] = instance.createHtml($(instance.inputElement).val());
+            $(instance["element"]).insertAfter($(instance.inputElement));
+            
+            $(document.body).on("click", "#" + settings.id, function(e){
+                
+                // Click on OFF
+                if ($(e.target).attr("off") !== undefined) {
                     
-                    if ($(e.target).attr("off") !== undefined) {
-                         $(e.target).next("button").removeClass(settings.onClass);
-                         
-                         // change input field value
-                         inputField.val(settings.offValue);
-                         
-                    } else {
-                        $(e.target).prev("button").removeClass(settings.onClass);
-                        
-                        // change input field value
-                        inputField.val(settings.onValue);
-                        
+                    if (!$(e.target).hasClass(settings.offClass)) {
+                        $(e.target).addClass(settings.offClass);
                     }
-                        
+                    
+                    $(e.target).next().removeClass(settings.onClass);
+                    
+                    instance.inputElement.val(settings.offValue);
+                // Click on ON
+                } else {
+                    
+                    if (!$(e.target).hasClass(settings.onClass)) {
+                        $(e.target).addClass(settings.onClass);
+                    }
+                    
+                    $(e.target).prev().removeClass(settings.offClass);
+                    instance.inputElement.val(settings.onValue);
+                }               
+            });
+            /*
+             *  var target = document.querySelector(this.selector);
+            var config = { attributes: false, childList: true, characterData: false };
+            mutation = new MutationObserver(function(mutations, observerInstance){                
+                if (mutations[0].type === "childList") {
                      
-                }
+                    var inputElement = $(mutations[0].addedNodes[0][1]);
+                    
+                    instance["inputElement"] = inputElement;
+                    
+                    $(instance.createHtml($(instance.inputElement).val())).insertAfter($(instance.inputElement));
+                    
+                    mutation.disconnect();
+                    
+                    
+                    
+                }                                
             });
             
+            mutation.observe(target, config);
+               */          
         }
-                       
-        return instance;                
+        
+        instance["inputElement"] = $(settings.elementSelector);
+        return instance;
         
     };
     
@@ -514,8 +535,10 @@
             onLabel: 'On',
             offValue: 0,
             onValue: 1,
-            onClass: "btn-primary",
-            id: "zse_switch"
+            onClass: "btn-success",
+            offClass: "btn-danger",
+            id: "zse_switch",
+            elementSelector: "input#ZSELoginOptionsValues_option_value"
         };
     }());
     
