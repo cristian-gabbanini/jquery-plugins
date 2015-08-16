@@ -162,25 +162,26 @@
 
 (function ($){
        
-    var instance = undefined;
+    var instance = {};
     
     var cachedData = {};
     
-    var editPanel = function(objRef, options){                
+    var editPanel = function(objSelector, options){                
         
-        var objRef = objRef;
+        var objSelector = objSelector;
         
         var self = this;
         
         var loadUrl = function(url, params) {
+            console.log(url);
             if (options.useCache === true && !$.isEmptyObject(cachedData)) {
-                objRef.html(cachedData[url]);
+                $(objSelector).html(cachedData[url]);
                 console.log("panel on after load cached");
                 options.onAfterLoad.call(self, cachedData[url]);
             } else {
                 
                 $.get(url, params, function(data) {
-                    objRef.html(data);
+                    $(objSelector).html(data);
                     if (options.useCache === true) {
                         cachedData[url] = data;
                     }
@@ -199,21 +200,60 @@
             loadUrl(url, params);                
         };
         
+        this.debug = function(){
+            console.log(instance);
+        };
+        
         this.show = function(){
             
-            options.onBeforeShow.call(undefined, objRef);
+            options.onBeforeShow.call(self, $(objSelector));
             
-            objRef[options.animIn](options.animInDuration, function(){
-                options.onAfterShow.call(undefined, objRef);
+            $(objSelector)[options.animIn](options.animInDuration, function(){
+                options.onAfterShow.call(self, $(objSelector));
             });
         };
         
         this.cloack = function(){
-            options.onBeforeHide.call(undefined, objRef);
-            
-            objRef[options.animExit](options.animExitDuration, function(){
-                options.onAfterHide.call(undefined, objRef);
+            console.log(options.animExitDuration);
+            console.log($(objSelector));
+            options.onBeforeHide.call(self, $(objSelector));
+           
+            $(objSelector)[options.animExit](options.animExitDuration, function(){
+                options.onAfterHide.call(self, $(objSelector));
             });
+        };
+        
+        this.setUpCss = function(){
+            // Style setup
+            var css = {
+                padding: "10px",
+                backgroundColor: options.backgroundColor
+            };
+            
+            var borderSettings = options.borders.split("|");
+             
+            if (borderSettings.indexOf("top") !== -1) {
+                css["border-top"] = "1px solid " + options.borderColor;
+            } else {
+                css["border-top"] = "0px";
+            }
+            if (borderSettings.indexOf("bottom") !== -1) {
+                css["border-bottom"] = "1px solid " + options.borderColor;
+            }else {
+                css["border-bottom"] = "0px";
+            }
+            if (borderSettings.indexOf("left") !== -1) {
+                css["border-left"] = "1px solid " + options.borderColor;
+            }else {
+                css["border-left"] = "0px";
+            }
+            if (borderSettings.indexOf("right") !== -1) {
+                css["border-right"] = "1px solid " + options.borderColor;
+            }else {
+                css["border-right"] = "0px";
+            }
+
+            $(objSelector).css(css);  
         };
     };
     
@@ -229,64 +269,20 @@
                 onAfterLoad: function(){},
                 url: undefined
             }, $.fn.ZSEEditPanel.default, options);
-            
-                
-        this.hide();                
-        
-        if (instance === undefined) {
-            instance = new editPanel(this, settings);
+                                     
+      
+        if ($.isEmptyObject(instance) || instance[this.attr("id")] === undefined) {            
+            instance[this.attr("id")] = new editPanel(this.selector, settings);
+            instance[this.attr("id")].setUpCss();
+            this.hide();
         }
         
         if (settings.url !== undefined) {
-            instance.url(settings.url);
+            instance[this.attr("id")].url(settings.url);
         }
-        
-        // After the first execution this is the function which is 
-        // executed
-        $.fn.ZSEEditPanel = function(options) {
-            
-            settings = $.extend(settings, options);
-            
-            // Style setup
-            var css = {
-                padding: "10px",
-                backgroundColor: settings.backgroundColor
-            };
-            
-            var borderSettings = settings.borders.split("|");
+                
+        return instance[this.attr("id")];
              
-            if (borderSettings.indexOf("top") !== -1) {
-                css["border-top"] = "1px solid " + settings.borderColor;
-            } else {
-                css["border-top"] = "0px";
-            }
-            if (borderSettings.indexOf("bottom") !== -1) {
-                css["border-bottom"] = "1px solid " + settings.borderColor;
-            }else {
-                css["border-bottom"] = "0px";
-            }
-            if (borderSettings.indexOf("left") !== -1) {
-                css["border-left"] = "1px solid " + settings.borderColor;
-            }else {
-                css["border-left"] = "0px";
-            }
-            if (borderSettings.indexOf("right") !== -1) {
-                css["border-right"] = "1px solid " + settings.borderColor;
-            }else {
-                css["border-right"] = "0px";
-            }
-
-            this.css(css);
-            
-            
-
-            return instance;
-        };
-        
-        $.fn.ZSEEditPanel.defaults = settings;
-        
-        return instance;
-               
     };
     
      $.fn.ZSEEditPanel.default = {
@@ -439,65 +435,85 @@
             return obj;
         };
         
+        this.exists = function(){
+            //if (this.element === undefined) return false;
+            var exists =  $("#" + settings.id).attr("id") === undefined ? false : true;
+            console.log("exists " + exists);
+            return exists;
+        };
+        
         this.remove = function() { 
             console.log("remove switch");
-            $(this.element).remove();
+            $("#" + settings.id).remove();
             
             // unregisters the event handler
-            $(document).off("click", "#" + settings.id, false);
-            
-            inputElement = undefined;
+            //$(document).off("click", "#" + settings.id, false);
+           
             // The next time a new instance will be created
-            instance = undefined;            
+            //instance = undefined;            
         };
         
         this.getId = function(){
             return settings.id;
+        };
+        
+        this.draw = function(){
+            instance.inputElement = $(settings.elementSelector);
+           
+            instance.element = instance.createHtml($(instance.inputElement).val());
+            $(instance.element).insertAfter($(instance.inputElement));
+            
+            $(document).on("click", "#" + settings.id, function(e){
+             
+            // Click on OFF
+            if ($(e.target).attr("off") !== undefined) {
+
+                if (!$(e.target).hasClass(settings.offClass)) {
+                    $(e.target).addClass(settings.offClass);
+                }
+
+                $(e.target).next().removeClass(settings.onClass);
+
+                $(settings.elementSelector).val(settings.offValue);
+            // Click on ON
+            } else {
+
+                if (!$(e.target).hasClass(settings.onClass)) {
+                    $(e.target).addClass(settings.onClass);
+                }
+
+                $(e.target).prev().removeClass(settings.offClass);
+                $(settings.elementSelector).val(settings.onValue);
+            }               
+        }); 
         };
     };
                                       
     
                
     $.fn.ZSESwitch = function(options) {                                       
-         
-        // Initialization code executed only once
-        if (instance === undefined ||  instance.inputElement === undefined) {
-            console.log("instantiating ZSESwitch");
-            settings = $.extend($.fn.ZSESwitch.defaults, options);                                                                      
-            
-            instance = new ZSESwitch();
-            
-            // We attach our plugin to the following hidden input field
-           // instance.inputElement = this;
-           
-            instance["inputElement"] = $(settings.elementSelector);
-            
-            instance["element"] = instance.createHtml($(instance.inputElement).val());
-            $(instance["element"]).insertAfter($(instance.inputElement));
-            
-            $(document.body).on("click", "#" + settings.id, function(e){
+        options = options === undefined ? {} : options
+        settings = $.extend($.fn.ZSESwitch.defaults, options);
+        settings.elementSelector = this;
+        
+        if (instance !== undefined && settings.draw === true) {
+                if (!instance.exists()) {
+                    console.log("drawing");
+                    instance.draw();    
+                }
                 
-                // Click on OFF
-                if ($(e.target).attr("off") !== undefined) {
-                    
-                    if (!$(e.target).hasClass(settings.offClass)) {
-                        $(e.target).addClass(settings.offClass);
-                    }
-                    
-                    $(e.target).next().removeClass(settings.onClass);
-                    
-                    instance.inputElement.val(settings.offValue);
-                // Click on ON
-                } else {
-                    
-                    if (!$(e.target).hasClass(settings.onClass)) {
-                        $(e.target).addClass(settings.onClass);
-                    }
-                    
-                    $(e.target).prev().removeClass(settings.offClass);
-                    instance.inputElement.val(settings.onValue);
-                }               
-            });
+        } else if (instance === undefined) {
+           
+            instance = new ZSESwitch();
+            console.log("new ZSESwitch");
+            if (settings.draw === true) {
+                console.log("drawing");
+                
+                instance.draw();
+                 
+            }
+           
+            
             /*
              *  var target = document.querySelector(this.selector);
             var config = { attributes: false, childList: true, characterData: false };
@@ -519,9 +535,9 @@
             
             mutation.observe(target, config);
                */          
-        }
+        }  
         
-        instance["inputElement"] = $(settings.elementSelector);
+        
         return instance;
         
     };
@@ -538,7 +554,8 @@
             onClass: "btn-success",
             offClass: "btn-danger",
             id: "zse_switch",
-            elementSelector: "input#ZSELoginOptionsValues_option_value"
+            draw: false,
+            elementSelector: "input#ZSELoginOptionsValues_option_value"           
         };
     }());
     
