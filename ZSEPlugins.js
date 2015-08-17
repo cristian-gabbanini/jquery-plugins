@@ -1,4 +1,4 @@
-(function ($){
+(function ($){        
     
     /***
      * 
@@ -7,6 +7,26 @@
      * @returns {ZSEAjaxForm_L1.ZSEAjaxForm}
      */
     var ZSEAjaxForm = function(objRef, options) {                          
+        
+        function submitHandler (e, data){
+            e.preventDefault();
+            if (!$(self.form.selector).find("button[type='submit']").hasClass("disabled")){
+                var method = $(this).attr("method").toLowerCase(),
+                    saveUrl = $(this).attr("action");
+
+                      
+
+                var jqxhr = $[method](saveUrl, $(this).serialize(), function(data){
+                    options.saveHandler.call(self.form, data);
+                    options.onAfterSave.call(self, data);
+                });
+
+                jqxhr.fail(function(){
+                    options.onSaveFailed.call(self, data);
+                    options.onAfterSave.call(self, data);
+                });  
+            }
+        };
         
         var self = this;
         
@@ -32,26 +52,8 @@
         
         // Init
         // Intercettiamo l'evento submit
-        $(document).on("submit", this.form.selector, function (e, data){
-            
-            var method = $(this).attr("method").toLowerCase(),
-                saveUrl = $(this).attr("action");
-             
-            e.preventDefault();            
-             
-            var jqxhr = $[method](saveUrl, $(this).serialize(), function(data){
-                options.saveHandler.call(self.form, data);
-                options.onAfterSave.call(self, data);
-            });
-            
-            jqxhr.fail(function(){
-                options.onSaveFailed.call(self, data);
-                options.onAfterSave.call(self, data);
-            });  
-            
-        });                      
-        
-        
+        $(document).on("submit", this.form.selector, submitHandler);                        
+                
         
         /***
          * Popola il form con i dati passati attraverso data
@@ -125,7 +127,7 @@
         
     };
             
-    var instance = undefined;
+    var instance = {};
                
     $.fn.ZSEAjaxForm = function(options) {
         
@@ -145,16 +147,21 @@
                    var jsonData = $.parseJSON(data);                   
                    $(this).empty().html(jsonData.data);
                 },
+                renewInstance: false,
                 onAfterPopulate: function(){},
                 loadUrl: 'info1.php'
             }, options);
                                  
         
-        if (instance === undefined) {
-            instance = new ZSEAjaxForm(this, settings);
+        if (options.renewInstence || $.isEmptyObject(instance) || instance[this.selector] === undefined) {            
+            // Detach event handler
+            $(document).off("submit", this.selector, "**");
+            
+            // instantiate object
+            instance[this.selector] = new ZSEAjaxForm(this, settings);
         }                      
         
-        return instance;
+        return instance[this.selector];
                
     };
     
@@ -173,10 +180,10 @@
         var self = this;
         
         var loadUrl = function(url, params) {
-            console.log(url);
+            
             if (options.useCache === true && !$.isEmptyObject(cachedData)) {
                 $(objSelector).html(cachedData[url]);
-                console.log("panel on after load cached");
+                 
                 options.onAfterLoad.call(self, cachedData[url]);
             } else {
                 
@@ -185,7 +192,7 @@
                     if (options.useCache === true) {
                         cachedData[url] = data;
                     }
-                    console.log("panel on after load");
+                   
                     options.onAfterLoad.call(self, data);                   
                 });  
             }
@@ -214,10 +221,7 @@
         };
         
         this.cloack = function(){
-            console.log(options.animExitDuration);
-            console.log($(objSelector));
-            options.onBeforeHide.call(self, $(objSelector));
-           
+            options.onBeforeHide.call(self, $(objSelector));           
             $(objSelector)[options.animExit](options.animExitDuration, function(){
                 options.onAfterHide.call(self, $(objSelector));
             });
@@ -269,8 +273,7 @@
                 onAfterLoad: function(){},
                 url: undefined
             }, $.fn.ZSEEditPanel.default, options);
-                                     
-      
+                                                
         if ($.isEmptyObject(instance) || instance[this.attr("id")] === undefined) {            
             instance[this.attr("id")] = new editPanel(this.selector, settings);
             instance[this.attr("id")].setUpCss();
@@ -438,12 +441,12 @@
         this.exists = function(){
             //if (this.element === undefined) return false;
             var exists =  $("#" + settings.id).attr("id") === undefined ? false : true;
-            console.log("exists " + exists);
+            
             return exists;
         };
         
         this.remove = function() { 
-            console.log("remove switch");
+            
             $("#" + settings.id).remove();
             
             // unregisters the event handler
@@ -498,16 +501,16 @@
         
         if (instance !== undefined && settings.draw === true) {
                 if (!instance.exists()) {
-                    console.log("drawing");
+                     
                     instance.draw();    
                 }
                 
         } else if (instance === undefined) {
            
             instance = new ZSESwitch();
-            console.log("new ZSESwitch");
+             
             if (settings.draw === true) {
-                console.log("drawing");
+                
                 
                 instance.draw();
                  
