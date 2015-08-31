@@ -55,26 +55,34 @@ var EventDirector = (function() {
 				return this;
 			};		
 		};
-	
+	               
 		var eventsManager = function(eventObject, attach){
-                    var eventObjectHandlers = eventObject.getHandlers(),
-                        eventMethod = attach === true ? "attachEvent" : "detachEvent";
-                    
+                    var eventObjectHandlers = eventObject.getHandlers();
+                                            
 			for (var handler in eventObjectHandlers){
-		
-				if (typeof handler === "array"){
-					for (var i=0; i < eventObjectHandlers[handler].lenght; i++){
-						manageEvent(selector, handler, eventObjectHandlers[handler][i], attach);
-					}
-				} else if (typeof handler === "string"){
-					manageEvent(eventObject.getSelector(),
-                                            eventObject.getDelegate(),
-                                            handler, 
-                                            eventObjectHandlers[handler],
-                                            attach);
-				} else {
-					throw new Error("Events arguments format not supported");
-				}
+                            
+                            // If multiple event handlers are passed
+                            if (eventObjectHandlers[handler] instanceof Array){
+
+                                    for (var i=0; i < eventObjectHandlers[handler].length; i++){
+
+                                            manageEvent(eventObject.getSelector(), 
+                                                eventObject.getDelegate(),
+                                                handler,
+                                                eventObjectHandlers[handler][i], 
+                                                attach);
+                                    }
+                            // We are dealing with a single event handler
+                            } else if (typeof eventObjectHandlers[handler] === "function"){
+
+                                    manageEvent(eventObject.getSelector(),
+                                        eventObject.getDelegate(),
+                                        handler, 
+                                        eventObjectHandlers[handler],
+                                        attach);
+                            } else {
+                                    throw new Error("Events arguments format not supported");
+                            }
 			}
 		};
                 
